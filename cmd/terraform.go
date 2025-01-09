@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"fmt"
+
 	"github.com/samber/lo"
 	"github.com/spf13/cobra"
 
@@ -8,6 +10,10 @@ import (
 	"github.com/cloudposse/atmos/pkg/schema"
 	u "github.com/cloudposse/atmos/pkg/utils"
 )
+
+type contextKey string
+
+// const atmosConfigKey contextKey = "atmos_config"
 
 // terraformCmd represents the base command for all terraform sub-commands
 var terraformCmd = &cobra.Command{
@@ -28,6 +34,13 @@ var terraformCmd = &cobra.Command{
 			finalArgs = lo.Slice(args, 0, doubleDashIndex)
 			argsAfterDoubleDash = lo.Slice(args, doubleDashIndex+1, len(args))
 		}
+
+		// changes to debug the args, finalArgs, and argsAfterDoubleDash
+		atmosConfig := cmd.Context().Value(contextKey("atmos_config")).(schema.AtmosConfiguration)
+		u.LogDebug(atmosConfig, fmt.Sprintf("args=%v", args))
+		u.LogDebug(atmosConfig, fmt.Sprintf("finalArgs=%v", finalArgs))
+		u.LogDebug(atmosConfig, fmt.Sprintf("argsAfterDoubleDash=%v", argsAfterDoubleDash))
+
 		info, err := e.ProcessCommandLineArgs("terraform", cmd, finalArgs, argsAfterDoubleDash)
 		if err != nil {
 			u.LogErrorAndExit(schema.AtmosConfiguration{}, err)
